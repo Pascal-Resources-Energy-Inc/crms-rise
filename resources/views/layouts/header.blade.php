@@ -1249,8 +1249,8 @@ function retryConnection() {
 function redirectToOfflineMode() {
     const getBasePath = () => {
         const path = window.location.pathname;
-        if (path.includes('/crms/public')) {
-            return '/crms/public';
+        if (path.includes('/crms-rise/public')) {
+            return '/crms-rise/public';
         }
         return '';
     };
