@@ -1,7 +1,9 @@
 {
     "name": "SPARK",
     "short_name": "GazLite",
-    "start_url": "./pwa-launcher.html",
+    "id": "/",
+    "start_url": "/login",
+    "scope": "/",
     "background_color": "#5DADE2",
     "description": "GazLite Customer Relationship Management System",
     "display": "fullscreen",

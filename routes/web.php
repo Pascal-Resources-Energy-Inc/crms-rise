@@ -26,6 +26,11 @@ Route::get('/chat', function () {
     return view('chat');
 })->name('chat');
 
+// Keep legacy bookmarks and installed shortcuts on the canonical Laravel login route.
+Route::get('/login.html', function () {
+    return redirect()->route('login');
+})->name('login.legacy');
+
 Auth::routes();
 
 Route::get('user-profile','UserController@view');
