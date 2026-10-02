@@ -92,7 +92,3 @@ class UserController extends Controller
         return $request->user();
     }
 }
-
-
-
-
