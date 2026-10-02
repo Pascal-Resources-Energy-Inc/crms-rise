@@ -498,7 +498,7 @@ const OfflineNotification = {
     },
 
     redirectToOfflineMode(isAuthenticated = false) {
-        const basePath = window.location.pathname.includes('/crms/public') ? '/crms/public' : '';
+        const basePath = window.location.pathname.includes('/crms-rise/public') ? '/crms-rise/public' : '';
         const targetPage = isAuthenticated ? 'home.html' : 'login.html';
         const offlinePath = `${basePath}/offline/${targetPage}`;
         
@@ -559,7 +559,7 @@ const OfflineNotification = {
             }
 
             if (window.location.pathname.includes('/offline/')) {
-                const basePath = window.location.pathname.includes('/crms/public') ? '/crms/public' : '';
+                const basePath = window.location.pathname.includes('/crms-rise/public') ? '/crms-rise/public' : '';
                 setTimeout(() => {
                     window.location.href = `${basePath}/login`;
                 }, 2000);
