@@ -1,6 +1,8 @@
-const CACHE_VERSION = 'v1';
+// Increment when changing fetch behavior so installed HTTPS clients update.
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `gazlite-pwa-${CACHE_VERSION}`;
-const BASE_PATH = self.registration.scope.includes('/crms-rise/public') ? '/crms-rise/public' : '';
+const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, '');
+const BASE_PATH = scopePath === '' ? '' : scopePath;
 
 const OFFLINE_URLS = [
   `${BASE_PATH}/pwa-launcher.html`,
@@ -56,7 +58,6 @@ const OFFLINE_URLS = [
 
 const ONLINE_ONLY_ROUTES = ['/home', '/login', '/products', '/cart', '/transaction', '/account', '/dashboard', '/dealer', '/client'];
 const SKIP_PATHS = ['/vendor/', '/node_modules/', '/api/', '/_debugbar/', '/livewire/'];
-const NETWORK_TIMEOUT = 2000;
 
 const OFFLINE_PAGE_MAP = {
   '/home': 'home.html',
@@ -147,10 +148,9 @@ async function handleNavigation(request, url) {
   const isOnlineRoute = ONLINE_ONLY_ROUTES.some(route => pathname.includes(route));
   
   try {
-    const networkResponse = await Promise.race([
-      fetch(request),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), NETWORK_TIMEOUT))
-    ]);
+    // Do not turn a slow online Home response into an offline page. The
+    // browser rejects fetch when the network is actually unavailable.
+    const networkResponse = await fetch(request);
     
     if (!isOnlineRoute && networkResponse.ok) {
       const cache = await caches.open(CACHE_NAME);
