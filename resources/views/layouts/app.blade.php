@@ -519,7 +519,9 @@ window.addEventListener('offline', () => {
         this.shouldShowLoading = false;
         this.allTasksCompleted = false;
         this.loadingStartTime = Date.now();
-        this.MINIMUM_LOADING_TIME = 20000;
+        // The PWA cache is optional for the online Home page. Never hold the
+        // page behind the loader while a worker or background sync is slow.
+        this.MAXIMUM_LOADING_TIME = 6000;
     }
     
     checkIfLoadingNeeded() {
@@ -552,10 +554,10 @@ window.addEventListener('offline', () => {
         let totalProgress = 0;
         
         if (taskProgress >= 80) {
-            const progressFrom80 = 80 + ((elapsedTime / this.MINIMUM_LOADING_TIME) * 20);
+            const progressFrom80 = 80 + ((elapsedTime / this.MAXIMUM_LOADING_TIME) * 20);
             totalProgress = Math.min(progressFrom80, 100);
         } else {
-            const timeProgress = Math.min((elapsedTime / 19000) * 20, 20);
+            const timeProgress = Math.min((elapsedTime / this.MAXIMUM_LOADING_TIME) * 20, 20);
             totalProgress = Math.min(taskProgress + timeProgress, 80);
         }
         
@@ -627,26 +629,8 @@ window.addEventListener('offline', () => {
     }
     
     complete() {
-        const elapsedTime = Date.now() - this.loadingStartTime;
-        const remainingTime = this.MINIMUM_LOADING_TIME - elapsedTime;
-        
-        if (remainingTime > 0) {
-            console.log(`All tasks done, waiting ${Math.round(remainingTime/1000)}s more...`);
-            this.statusText.textContent = 'Finalizing download...';
-            
-            const progressInterval = setInterval(() => {
-                this.updateProgress();
-            }, 100);
-            
-            setTimeout(() => {
-                clearInterval(progressInterval);
-                this.updateProgress();
-                this.finishLoading();
-            }, remainingTime);
-        } else {
-            this.updateProgress();
-            this.finishLoading();
-        }
+        this.updateProgress();
+        this.finishLoading();
     }
     
     finishLoading() {
@@ -736,6 +720,9 @@ function startLoadingTasks() {
             .catch(error => {
                 console.error('Service Worker failed:', error);
                 loadingManager.failTask('sw', 'Service Worker registration failed');
+                // A worker is an offline enhancement, not a prerequisite for Home.
+                loadingManager.completeTask('cache', 'Cache will be updated later');
+                loadingManager.completeTask('assets', 'Resources loaded');
             });
     } else {
         loadingManager.completeTask('sw', 'Service Worker not supported');
@@ -771,7 +758,7 @@ function loadCacheAndAssets() {
     };
     
     let attempts = 0;
-    const maxAttempts = 20;
+    const maxAttempts = 5;
     
     const pollCache = setInterval(async () => {
         attempts++;
@@ -839,7 +826,7 @@ window.addEventListener('online', () => {
 
 setTimeout(() => {
     if (loadingManager.shouldShowLoading && !loadingManager.allTasksCompleted) {
-        console.log('Maximum loading time reached (25s) - forcing completion');
+        console.log('Maximum loading time reached - showing the application');
         
         Object.keys(loadingManager.tasks).forEach(taskName => {
             if (!loadingManager.tasks[taskName].completed) {
@@ -847,7 +834,7 @@ setTimeout(() => {
             }
         });
     }
-}, 25000);
+}, 6000);
     </script>
 
     <!-- IndexedDB Management Script -->

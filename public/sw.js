@@ -1,8 +1,6 @@
-// Increment this whenever the deployed offline application or routing changes.
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v1';
 const CACHE_NAME = `gazlite-pwa-${CACHE_VERSION}`;
-const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, '');
-const BASE_PATH = scopePath === '' ? '' : scopePath;
+const BASE_PATH = self.registration.scope.includes('/crms-rise/public') ? '/crms-rise/public' : '';
 
 const OFFLINE_URLS = [
   `${BASE_PATH}/pwa-launcher.html`,
