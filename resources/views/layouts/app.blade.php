@@ -417,23 +417,15 @@
 
     <script>
     (function() {
-        const hasCompletedFirstLoad = localStorage.getItem('pwa-first-load-complete');
         const overlay = document.getElementById('pwaLoadingOverlay');
-        
-        
-        if (hasCompletedFirstLoad === 'true') {
-            if (overlay) {
-                overlay.classList.add('hidden');
-                overlay.style.display = 'none';
-            }
-            document.body.style.overflow = 'auto';
-        } else {
-            if (overlay) {
-                overlay.classList.remove('hidden');
-                overlay.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
+
+        // PWA setup happens in the background. It must never prevent Home
+        // from being visible, including on a slow or unavailable connection.
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
         }
+        document.body.style.overflow = 'auto';
     })();
     </script>
     <div id="loader" style="display:none;" class="loader"></div>
@@ -525,19 +517,14 @@ window.addEventListener('offline', () => {
     }
     
     checkIfLoadingNeeded() {
-        const hasCompletedFirstLoad = localStorage.getItem('pwa-first-load-complete');
-        
-        if (hasCompletedFirstLoad === 'true') {
-            console.log('Skipping loading - first load already completed');
-            this.shouldShowLoading = false;
+        console.log('PWA startup continues in the background');
+        this.shouldShowLoading = false;
+        if (this.overlay) {
             this.overlay.classList.add('hidden');
-            return false;
+            this.overlay.style.display = 'none';
         }
-        
-        this.shouldShowLoading = true;
-        this.overlay.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        return true;
+        document.body.style.overflow = 'auto';
+        return false;
     }
     
     updateProgress() {
