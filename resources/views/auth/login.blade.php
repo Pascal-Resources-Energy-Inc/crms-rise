@@ -714,7 +714,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (response.type === 'opaqueredirect' || response.redirected) {
-                    window.location.href = response.url || '/dashboard';
+                    // Laravel authenticates with a redirect response. Navigate to
+                    // the application's real authenticated route, not /dashboard
+                    // (which is not defined in this project).
+                    window.location.assign('{{ url('/home') }}');
                     return;
                 }
                 
@@ -744,7 +747,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         showConfirmButton: false,
                         confirmButtonColor: '#5DADE2'
                     }).then(() => {
-                        window.location.href = result.redirect || '/dashboard';
+                        window.location.assign(result.redirect || '{{ url('/home') }}');
                     });
                 } else {
                     Swal.fire({
